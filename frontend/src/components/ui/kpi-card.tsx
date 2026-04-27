@@ -16,28 +16,18 @@ export function KPICard({
   label,
   value,
   subtext,
-  variant = 'default',
   className = '',
 }: KPICardProps) {
-  const variantClass = variant === 'default' ? '' : variant;
-
   return (
-    <div className={`stat-card ${variantClass} ${className}`}>
-      {Icon && (
-        <div className="flex items-center gap-3 mb-2">
-          <Icon size={18} className="text-[var(--text-muted)]" />
-          <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">
-            {label}
-          </span>
-        </div>
-      )}
-      {!Icon && (
-        <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide block mb-2">
-          {label}
-        </span>
-      )}
-      <p className="text-3xl font-bold text-[var(--text-primary)]">{value}</p>
-      {subtext && <p className="text-xs text-[var(--text-muted)] mt-2">{subtext}</p>}
+    <div className={`dashboard-card p-6 flex flex-col gap-4 ${className}`}>
+      <div className="flex items-center justify-between">
+        <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider">{label}</span>
+        {Icon && <Icon size={16} className="text-zinc-400" />}
+      </div>
+      <div className="flex flex-col">
+        <p className="text-3xl font-bold text-white">{value}</p>
+        {subtext && <p className="text-[10px] text-zinc-600 font-medium mt-1 uppercase">{subtext}</p>}
+      </div>
     </div>
   );
 }

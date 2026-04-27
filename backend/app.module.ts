@@ -14,11 +14,12 @@ import { ExpensesModule } from './modules/expenses/expenses.module.js';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', 'backend/.env'],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
       }),
     }),
@@ -34,4 +35,3 @@ import { ExpensesModule } from './modules/expenses/expenses.module.js';
   providers: [AppService],
 })
 export class AppModule {}
-

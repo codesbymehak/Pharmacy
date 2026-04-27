@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useExpenses } from '../hooks/use-expenses';
 import { ModalForm } from '../components/ui/modal-form';
-import { EmptyState } from '../components/ui/empty-state';
-import { Skeleton } from '../components/ui/loading-skeleton';
 import { Badge } from '../components/ui/badge';
-import { Plus, ArrowUpRight, Filter, ReceiptText } from 'lucide-react';
+import { Plus, ReceiptText, Filter } from 'lucide-react';
 import type { CreateExpenseDto } from '../lib/types';
 import { useToast } from '../contexts/toast-context';
+import { TableSkeleton } from '../components/ui/loading-skeleton';
 
 export function ExpensesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,123 +52,124 @@ export function ExpensesPage() {
   };
 
   return (
-    <div className="page-container pb-8">
-      <div className="page-header">
+    <div className="space-y-8 animate-in">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="page-title">Expense Management</h1>
-          <p className="page-subtitle">Track your pharmacy operational costs</p>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight text-gradient">Operating Expenses</h1>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]"></span>
+            <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">Financial Outflow Monitoring</p>
+          </div>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="btn btn-primary">
-          <Plus size={16} /> Log Expense
+        <button 
+          onClick={() => setIsModalOpen(true)} 
+          className="btn btn-primary h-12 px-8 shadow-xl shadow-rose-500/10 border-rose-500/20 bg-gradient-to-r from-rose-600 to-rose-500"
+        >
+          <Plus size={18} /> <span className="font-bold">Log New Expense</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-        <div className="stat-card red md:col-span-1">
-          <div className="flex items-center gap-3 mb-2">
-            <ArrowUpRight size={18} className="text-[var(--text-muted)]" />
-            <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">Total in Period</span>
-          </div>
-          <p className="text-3xl font-bold text-[var(--text-primary)]">₹{totalAmount.toLocaleString()}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Total Stat Card */}
+        <div className="glass-panel p-8 bg-rose-500/5 border-rose-500/10 flex flex-col justify-between">
+           <div>
+              <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Total Period Expense</p>
+              <h2 className="text-4xl font-black text-white">₹{totalAmount.toLocaleString()}</h2>
+           </div>
+           <div className="flex items-center gap-2 mt-6">
+              <div className="px-2 py-1 rounded bg-rose-500 text-white text-[9px] font-black uppercase">Attention</div>
+              <p className="text-[10px] text-slate-500 font-bold uppercase">Based on current filters</p>
+           </div>
         </div>
 
-        <div className="card p-5 md:col-span-2 flex flex-col justify-center">
-          <div className="flex items-center gap-2 mb-3">
-            <Filter size={16} className="text-[var(--text-muted)]" />
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Filter Period</h3>
+        {/* Filter Panel */}
+        <div className="md:col-span-2 glass-panel p-8 bg-white/[0.02] border-white/5">
+          <div className="flex items-center gap-3 mb-6">
+             <Filter size={14} className="text-teal-500" />
+             <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Interval Configuration</h3>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <select
-              className="select select-sm w-full md:w-auto md:max-w-[160px]"
-              value={filters.period || ''}
-              onChange={e => setFilters({ period: e.target.value, startDate: '', endDate: '' })}
-            >
-              <option value="weekly">This Week</option>
-              <option value="monthly">This Month</option>
-              <option value="yearly">This Year</option>
-              <option value="">All Time / Custom</option>
-            </select>
-
-            <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
-              <input
-                type="date"
-                className="input input-sm w-full md:w-auto"
-                value={filters.startDate || ''}
-                onChange={e => setFilters({ period: '', startDate: e.target.value, endDate: filters.endDate })}
-              />
-              <span className="text-[var(--text-muted)] text-sm whitespace-nowrap">to</span>
-              <input
-                type="date"
-                className="input input-sm w-full md:w-auto"
-                value={filters.endDate || ''}
-                onChange={e => setFilters({ period: '', startDate: filters.startDate, endDate: e.target.value })}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-2">
+               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Preset Period</label>
+               <select
+                  className="select h-12 bg-black/40 border-white/5 text-sm font-bold"
+                  value={filters.period || ''}
+                  onChange={e => setFilters({ period: e.target.value, startDate: '', endDate: '' })}
+                >
+                  <option value="weekly">Current Week</option>
+                  <option value="monthly">Current Month</option>
+                  <option value="yearly">Current Year</option>
+                  <option value="">Custom Range</option>
+                </select>
+            </div>
+            <div className="flex flex-col gap-2">
+               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">From Date</label>
+               <input
+                  type="date"
+                  className="input h-12 bg-black/20 border-white/5 text-sm font-bold"
+                  value={filters.startDate || ''}
+                  onChange={e => setFilters({ period: '', startDate: e.target.value, endDate: filters.endDate })}
+                />
+            </div>
+            <div className="flex flex-col gap-2">
+               <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">To Date</label>
+               <input
+                  type="date"
+                  className="input h-12 bg-black/20 border-white/5 text-sm font-bold"
+                  value={filters.endDate || ''}
+                  onChange={e => setFilters({ period: '', startDate: filters.startDate, endDate: e.target.value })}
+                />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="table-container">
-        <table>
+      <div className="premium-table-container">
+        <table className="premium-table">
           <thead>
             <tr>
-              <th className="w-32">Date</th>
-              <th className="w-48">Category</th>
-              <th>Description</th>
-              <th className="w-32 text-right">Amount</th>
+              <th>Expense Date</th>
+              <th className="w-48 text-center">Classification</th>
+              <th>Description & Reference</th>
+              <th className="w-32 text-right">Debit (₹)</th>
             </tr>
           </thead>
           <tbody>
-            {isLoading && (
-              <>
-                {[1, 2, 3, 4].map(i => (
-                  <tr key={i}>
-                    <td>
-                      <Skeleton className="h-6" />
-                    </td>
-                    <td>
-                      <Skeleton className="h-6" />
-                    </td>
-                    <td>
-                      <Skeleton className="h-6" />
-                    </td>
-                    <td>
-                      <Skeleton className="h-6" />
-                    </td>
-                  </tr>
-                ))}
-              </>
-            )}
+            {isLoading && <TableSkeleton rows={8} columns={4} />}
             {!isLoading && expenses && expenses.length > 0 && (
               expenses.map(expense => (
-                <tr key={expense._id}>
-                  <td className="text-sm text-[var(--text-secondary)]">
-                    {new Date(expense.date).toLocaleDateString('en-IN', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
+                <tr key={expense._id} className="group">
+                  <td className="text-sm font-bold text-slate-400">
+                    <div className="flex flex-col">
+                      <span>{new Date(expense.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest mt-0.5">Recorded</span>
+                    </div>
                   </td>
-                  <td>
+                  <td className="text-center">
                     <Badge label={expense.category} variant={getCategoryColor(expense.category) as any} />
                   </td>
-                  <td className="text-sm text-[var(--text-secondary)]">{expense.description}</td>
-                  <td className="text-right font-medium text-[var(--text-primary)]">₹{expense.amount}</td>
+                  <td>
+                    <div className="flex flex-col">
+                       <span className="text-white font-medium group-hover:text-rose-400 transition-colors uppercase tracking-tight text-sm">{expense.description}</span>
+                       <span className="text-[9px] text-slate-600 font-bold uppercase mt-0.5 tracking-tighter">REF_{expense._id.slice(-8).toUpperCase()}</span>
+                    </div>
+                  </td>
+                  <td className="text-right">
+                     <span className="text-lg font-black text-white">₹{expense.amount.toLocaleString()}</span>
+                  </td>
                 </tr>
               ))
             )}
             {!isLoading && (!expenses || expenses.length === 0) && (
               <tr>
-                <td colSpan={4} className="p-0">
-                  <EmptyState
-                    icon={ReceiptText}
-                    title="No expenses logged"
-                    description="Log your first expense to track operational costs"
-                    action={{
-                      label: 'Add Expense',
-                      onClick: () => setIsModalOpen(true),
-                    }}
-                  />
+                <td colSpan={4} className="py-24">
+                  <div className="flex flex-col items-center justify-center text-slate-600">
+                    <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6">
+                      <ReceiptText size={32} className="opacity-10" />
+                    </div>
+                    <h4 className="text-sm font-black text-slate-500 uppercase tracking-[0.2em]">No Ledger Entries</h4>
+                    <p className="text-xs font-medium mt-2">Adjust your period selection or record a new expense</p>
+                  </div>
                 </td>
               </tr>
             )}

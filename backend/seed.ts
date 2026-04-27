@@ -16,16 +16,27 @@ async function bootstrap() {
   const expenseModel = app.get(getModelToken(Expense.name));
 
   console.log('Seeding Master Admin...');
-  try {
-    await authService.register({
-      name: 'System Admin',
-      email: 'admin@pharmacy.com',
-      password: 'admin',
-      role: 'Admin',
-    });
-    console.log('Master Admin created: admin@pharmacy.com / admin');
-  } catch (error) {
-    console.log('Master Admin already exists.');
+  const adminEmail = 'admin@pharmacy.com';
+  const adminPassword = 'password123';
+  
+  const existingAdmin = await userModel.findOne({ email: adminEmail });
+  if (existingAdmin) {
+    console.log('Master Admin already exists. Updating password...');
+    existingAdmin.password = adminPassword;
+    await existingAdmin.save();
+    console.log('Master Admin password updated.');
+  } else {
+    try {
+      await authService.register({
+        name: 'System Admin',
+        email: adminEmail,
+        password: adminPassword,
+        role: 'Admin',
+      });
+      console.log(`Master Admin created: ${adminEmail} / ${adminPassword}`);
+    } catch (error) {
+      console.error('Error creating Master Admin:', error.message);
+    }
   }
 
   const admin = await userModel.findOne({ email: 'admin@pharmacy.com' }).exec();
